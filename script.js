@@ -8,6 +8,9 @@ let currentSongName = null;
 let likedArray = JSON.parse(localStorage.getItem("likedSongs")) || [];
 localStorage.setItem("likedSongs", JSON.stringify(likedArray));
 
+let historyArray = JSON.parse(localStorage.getItem("historySongs")) || [];
+localStorage.setItem("historySongs", JSON.stringify(historyArray));
+
 // External play history to track the order of played songs
 // Each history entry stores playButton and pauseButton if available.
 let playHistory = [];
@@ -153,9 +156,19 @@ function createBanner(hd, img, audioSrc) {
 }
 
 function addToHistory(songName, imgSrc, audioSrc) {
+  let historyArray = localStorage.getItem("historySongs");
+  historyArray = historyArray ? JSON.parse(historyArray) : [];
   let existingBanner = [...historyContainer.children].find(banner =>
     banner.querySelector(".songname").textContent.trim() === songName
   );
+  let existing = [...historyArray].find(song => song.songName === songName);
+  if (existing) {
+    historyArray = historyArray.filter(song => song.songName !== songName);
+    localStorage.setItem("historySongs", JSON.stringify(historyArray));
+  } else {
+    historyArray.push({ songName, imgSrc, audioSrc });
+    localStorage.setItem("historySongs", JSON.stringify(historyArray));
+  }
   if (existingBanner) {
     historyContainer.prepend(existingBanner);
   } else {
@@ -302,6 +315,13 @@ navels.forEach(navel => {
       document.querySelector(".likedcontainer").style.display = "none";
       matchingsongslist.style.display = "none";
       document.querySelector(".historycontainer").style.display = "flex";
+      for (let song of historyArray) {
+        let existingBanner = [...historyContainer.children].find(banner =>
+          banner.querySelector(".songname").textContent.trim() === song.songName
+        );
+        if (existingBanner) continue;
+        historyContainer.prepend(createBanner(song.songName, song.imgSrc, song.audioSrc));
+      }
     } else if (navel.classList.contains("liked")) {
       document.querySelectorAll(".platteritem").forEach(item => item.style.display = "none");
       document.querySelector(".searchlistcontainer").style.display = "none";
