@@ -5,6 +5,8 @@ let currentPlay = null;
 let currentPause = null;
 let progressInterval = null;
 let currentSongName = null;
+let likedArray = JSON.parse(localStorage.getItem("likedSongs")) || [];
+localStorage.setItem("likedSongs", JSON.stringify(likedArray));
 
 // External play history to track the order of played songs
 // Each history entry stores playButton and pauseButton if available.
@@ -162,9 +164,18 @@ function addToHistory(songName, imgSrc, audioSrc) {
 }
 
 function addToLiked(songName, imgSrc, audioSrc) {
+  let likedArray = localStorage.getItem("likedSongs");
+  likedArray = likedArray ? JSON.parse(likedArray) : [];
   let existingBanner = [...likedContainer.children].find(banner =>
     banner.querySelector(".songname").textContent.trim() === songName
   );
+  let liked = [...likedArray].find(song => song.songName === songName);
+  if (liked) {
+    likedArray = likedArray.filter(song => song.songName !== songName);
+  } else {
+    likedArray.push({ songName, imgSrc, audioSrc });
+  }
+  localStorage.setItem("likedSongs", JSON.stringify(likedArray));
   if (existingBanner) {
     likedContainer.removeChild(existingBanner);
   } else {
@@ -295,6 +306,10 @@ navels.forEach(navel => {
       document.querySelector(".historycontainer").style.display = "none";
       matchingsongslist.style.display = "none";
       document.querySelector(".likedcontainer").style.display = "flex";
+      for (let song of likedArray) {
+        addToLiked(song.songName, song.imgSrc, song.audioSrc);
+      }
+      // ----------------------------
     } else {
       document.querySelectorAll(".platteritem").forEach(item => item.style.display = "block");
       document.querySelector(".searchlistcontainer").style.display = "none";
@@ -339,6 +354,10 @@ function createCard(coverImage, mediaUrl, songName) {
   searchCard.appendChild(head);
 
   let audio = new Audio(mediaUrl);
+  audio.load()
+  audio.src = mediaUrl;
+  audio.preload = "auto";
+  audio.crossOrigin = "anonymous";
   playButton.addEventListener('click', () => {
     playSong({
       audio,
@@ -365,7 +384,7 @@ searchBox.addEventListener('input', async () => {
   }
 
   try {
-    const searchResponse = await fetch(`https://saavn.dev/api/search/songs?query=${encodeURIComponent(songName)}`, {
+    const searchResponse = await fetch(`https://saavn.sumit.co/api/search/songs?query=${encodeURIComponent(songName)}`, {
       headers: { Accept: '*/*' }
     });
     const searchData = await searchResponse.json();
@@ -413,6 +432,10 @@ searchBox.addEventListener('input', async () => {
     searchList.appendChild(searchCard);
 
     let audio = new Audio(mediaUrl);
+    audio.load()
+    audio.src = mediaUrl;
+    audio.preload = "auto";
+    audio.crossOrigin = "anonymous";
     playButton.addEventListener('click', () => {
       playSong({
         audio,
