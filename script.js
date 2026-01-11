@@ -174,8 +174,8 @@ function addToLiked(songName, imgSrc, audioSrc) {
     likedArray = likedArray.filter(song => song.songName !== songName);
   } else {
     likedArray.push({ songName, imgSrc, audioSrc });
+    localStorage.setItem("likedSongs", JSON.stringify(likedArray));
   }
-  localStorage.setItem("likedSongs", JSON.stringify(likedArray));
   if (existingBanner) {
     likedContainer.removeChild(existingBanner);
   } else {
