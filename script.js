@@ -310,6 +310,10 @@ navels.forEach(navel => {
       document.querySelector(".likedcontainer").style.display = "flex";
 
       for (let song of likedArray) {
+        let existingBanner = [...likedContainer.children].find(banner =>
+          banner.querySelector(".songname").textContent.trim() === song.songName
+        );
+        if (existingBanner) continue;
         likedContainer.prepend(createBanner(song.songName, song.imgSrc, song.audioSrc));
       }
       // ----------------------------
