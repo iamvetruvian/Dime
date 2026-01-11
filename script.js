@@ -172,6 +172,8 @@ function addToLiked(songName, imgSrc, audioSrc) {
   let liked = [...likedArray].find(song => song.songName === songName);
   if (liked) {
     likedArray = likedArray.filter(song => song.songName !== songName);
+    localStorage.setItem("likedSongs", JSON.stringify(likedArray));
+  
   } else {
     likedArray.push({ songName, imgSrc, audioSrc });
     localStorage.setItem("likedSongs", JSON.stringify(likedArray));
@@ -306,8 +308,9 @@ navels.forEach(navel => {
       document.querySelector(".historycontainer").style.display = "none";
       matchingsongslist.style.display = "none";
       document.querySelector(".likedcontainer").style.display = "flex";
+
       for (let song of likedArray) {
-        addToLiked(song.songName, song.imgSrc, song.audioSrc);
+        likedContainer.prepend(createBanner(song.songName, song.imgSrc, song.audioSrc));
       }
       // ----------------------------
     } else {
